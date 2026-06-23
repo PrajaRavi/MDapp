@@ -1,0 +1,567 @@
+import React, { useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+  Dimensions,
+} from "react-native";
+
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  ZoomIn,
+} from "react-native-reanimated";
+import ServiceItemsModal from "../components/services";
+import SignInCard from "../components/Signincard";
+import Popup from "../utils/Popup";
+import SignInScreen from "../Signin";
+import { router } from "expo-router";
+
+const { width } = Dimensions.get("window");
+
+const COLORS = {
+  primary: "#01BCBC",
+  dark: "#023B40",
+  white: "#FFFFFF",
+};
+
+const isLoggedIn = false;
+const IronIcon=Image.resolveAssetSource(require("@/assets/images/iron.png"))
+const cleancloth=Image.resolveAssetSource(require("@/assets/images/clean-clothes.png"))
+const BagICon=Image.resolveAssetSource(require("@/assets/images/school-bag.png"))
+const ShoeCon=Image.resolveAssetSource(require("@/assets/images/running-shoe.png"))
+const BestPrice=Image.resolveAssetSource(require("@/assets/images/best-price.png"))
+const clock=Image.resolveAssetSource(require("@/assets/images/clock.png"))
+const delivery=Image.resolveAssetSource(require("@/assets/images/delivery.png"))
+const guarentty=Image.resolveAssetSource(require("@/assets/images/guarantee.png"))
+const payment=Image.resolveAssetSource(require("@/assets/images/payment-gateway.png"))
+
+
+const services = [
+  {
+    id: 1,
+    name: "Wash & Fold",
+    image:
+      cleancloth.uri,
+       items: [
+      {
+        id: "shirt",
+        label: "Shirt",
+        price: 15,
+      },
+      {
+        id: "tshirt",
+        label: "T-Shirt",
+        price: 12,
+      },
+      {
+        id: "jeans",
+        label: "Jeans",
+        price: 25,
+      },
+      {
+        id: "saree",
+        label: "Saree",
+        price: 60,
+      },
+    ]
+  },
+  {
+    id: 2,
+    name: "Wash & Iron",
+    image:
+    IronIcon.uri
+      ,
+      items: [
+      {
+        id: "shirt",
+        label: "Shirt",
+        price: 15,
+      },
+      {
+        id: "tshirt",
+        label: "T-Shirt",
+        price: 12,
+      },
+      {
+        id: "jeans",
+        label: "Jeans",
+        price: 25,
+      },
+      {
+        id: "saree",
+        label: "Saree",
+        price: 60,
+      },
+    ]
+  },
+  {
+    id: 3,
+    name: "Heavy Wash Service",
+    image:
+      cleancloth.uri,
+      items: [
+      {
+        id: "shirt",
+        label: "Shirt",
+        price: 15,
+      },
+      {
+        id: "tshirt",
+        label: "T-Shirt",
+        price: 12,
+      },
+      {
+        id: "jeans",
+        label: "Jeans",
+        price: 25,
+      },
+      {
+        id: "saree",
+        label: "Saree",
+        price: 60,
+      },
+    ]
+  },
+  {
+    id: 4,
+    name: "Bag cleaning ",
+    image:
+      BagICon.uri,
+      items: [
+      {
+        id: "shirt",
+        label: "Shirt",
+        price: 15,
+      },
+      {
+        id: "tshirt",
+        label: "T-Shirt",
+        price: 12,
+      },
+      {
+        id: "jeans",
+        label: "Jeans",
+        price: 25,
+      },
+      {
+        id: "saree",
+        label: "Saree",
+        price: 60,
+      },
+    ]
+  },
+  {
+    id: 5,
+    name: "shoe cleaning ",
+    image:
+      ShoeCon.uri,
+      items: [
+      {
+        id: "shirt",
+        label: "Shirt",
+        price: 15,
+      },
+      {
+        id: "tshirt",
+        label: "T-Shirt",
+        price: 12,
+      },
+      {
+        id: "jeans",
+        label: "Jeans",
+        price: 25,
+      },
+      {
+        id: "saree",
+        label: "Saree",
+        price: 60,
+      },
+    ]
+  },
+];
+
+const whyChooseUs = [
+  {label:"Free Pickup",Icon:delivery.uri,id:1},
+  {label:"Quality Care",Icon:guarentty.uri,id:2},
+  {label:"On-time Delivery",Icon:clock.uri,id:3},
+  {label:"Secure Payment",Icon:payment.uri,id:4},
+  // "Live Tracking",
+  {label:"Best Prices",Icon:BestPrice.uri,id:5},
+];
+
+export default function HomeScreen() {
+  let [selectedService, setSelectedService] =
+  useState<any>(null);
+  let [OpenPopUpModel, setOpenPopUpModel] =
+  useState<boolean>(false);
+
+const [modalVisible, setModalVisible] =
+  useState(false);
+  const handleServiceClick = (service:any) => {
+    setSelectedService(service)
+    if (!isLoggedIn) {
+      Alert.alert(
+        "Login Required",
+        "You are not logged in"
+      );
+      
+      return;
+    }
+    setModalVisible(true)
+  };
+
+  return (
+    <View style={styles.container}>
+      <Popup onClose={()=>{setOpenPopUpModel(false)}} visible={OpenPopUpModel} >
+    <SignInScreen/>
+      </Popup>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HEADER */}
+
+        {isLoggedIn?<Animated.View
+          entering={FadeInDown}
+          style={styles.header}
+        >
+          <View>
+            <Text style={styles.heading}>
+              Hello, Ravi 👋
+            </Text>
+
+            <Text style={styles.subHeading}>
+              Fresh clothes, delivered happy.
+            </Text>
+          </View>
+
+          {isLoggedIn && (
+            <Image
+              source={{
+                uri: "https://i.pravatar.cc/300",
+              }}
+              style={styles.avatar}
+            />
+          )}
+        </Animated.View>:
+        <SignInCard onPress={()=>{
+          router.push("/Signin")
+          // router.push("/DeliveryAdmin")
+        }}/>
+        }
+
+        {/* OFFER BANNER */}
+
+        <Animated.View
+          entering={FadeInUp.delay(100)}
+          style={styles.banner}
+        >
+          <View>
+            <Text style={styles.offerText}>
+              20% OFF
+            </Text>
+
+            <Text style={styles.offerSub}>
+              ON YOUR FIRST WASH
+            </Text>
+
+            <View style={styles.coupon}>
+              <Text style={styles.couponText}>
+                FIRSTWASH20
+              </Text>
+            </View>
+          </View>
+
+          <Image
+            source={{
+              uri: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1",
+            }}
+            style={styles.bannerImage}
+          />
+        </Animated.View>
+
+        {/* SERVICES */}
+<ServiceItemsModal
+  visible={modalVisible}
+  serviceName={
+    selectedService?.name || ""
+  }
+  items={
+    selectedService?.items || [{id:1,label:"ravi",price:50}]
+  }
+  onClose={() =>
+    setModalVisible(false)
+  }
+  onContinue={(
+    items,
+    totalPrice
+  ) => {
+    console.log(items);
+    console.log(totalPrice);
+
+    setModalVisible(false);
+  }}
+/>
+        <Animated.View
+          entering={FadeInUp.delay(200)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>
+            Our Services
+          </Text>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={
+              false
+            }
+          >
+            {services.map((service) => (
+              <TouchableOpacity
+                key={service.id}
+                style={styles.serviceCard}
+                activeOpacity={0.9}
+                onPress={
+                  ()=>{
+                    handleServiceClick(service)
+                  }
+                }
+              >
+                <Image
+                  source={{
+                    uri: service.image,
+                  }}
+                  style={
+                    styles.serviceImage
+                  }
+                />
+
+                <Text
+                  style={
+                    styles.serviceText
+                  }
+                >
+                  {service.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </Animated.View>
+
+        {/* WHY CHOOSE US */}
+
+        <Animated.View
+          entering={FadeInUp.delay(300)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>
+            Why Choose MyDhobi?
+          </Text>
+
+          <View style={styles.grid}>
+            {whyChooseUs.map(
+              (item, index) => (
+                 <TouchableOpacity
+                key={item.id}
+                style={styles.whyCard}
+                activeOpacity={0.9}
+                              >
+                <Image
+                  source={{
+                    uri: item.Icon,
+                  }}
+                  style={
+                    styles.serviceImage
+                  }
+                />
+
+                <Text
+                  style={
+                    styles.serviceText
+                  }
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+              )
+            )}
+          </View>
+        </Animated.View>
+
+        {/* OFFERS */}
+
+        {/* <Animated.View
+          entering={FadeInUp.delay(400)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>
+            Offers For You
+          </Text>
+
+          <View style={styles.offerCard}>
+            <Text
+              style={styles.offerCardText}
+            >
+              Free Pickup On Orders
+              Above ₹199
+            </Text>
+          </View>
+
+          <View style={styles.offerCard}>
+            <Text
+              style={styles.offerCardText}
+            >
+              10% Cashback On All
+              Prepaid Orders
+            </Text>
+          </View>
+        </Animated.View> */}
+
+        <View
+          style={{ height: 120 }}
+        />
+      </ScrollView>
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#021F24",
+  },
+
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  heading: {
+    fontSize: 30,
+    fontWeight: "700",
+    color: "#fff",
+  },
+
+  subHeading: {
+    color: "#C9D6D8",
+    marginTop: 5,
+  },
+
+  avatar: {
+    width: 55,
+    height: 55,
+    borderRadius: 50,
+  },
+
+  banner: {
+    margin: 20,
+    backgroundColor: "#01BCBC",
+    borderRadius: 25,
+    padding: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    overflow: "hidden",
+  },
+
+  offerText: {
+    fontSize: 38,
+    color: "#fff",
+    fontWeight: "800",
+  },
+
+  offerSub: {
+    color: "#fff",
+    marginTop: 5,
+  },
+
+  coupon: {
+    marginTop: 15,
+    backgroundColor: "#023B40",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+
+  couponText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+
+  bannerImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 15,
+  },
+
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
+
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 15,
+  },
+
+  serviceCard: {
+    width: 120,
+    backgroundColor: "#023B40",
+    borderRadius: 20,
+    padding: 15,
+    marginRight: 15,
+    alignItems: "center",
+  },
+
+  serviceImage: {
+    width: 60,
+    height: 60,
+  },
+
+  serviceText: {
+    color: "#fff",
+    marginTop: 10,
+    textAlign: "center",
+  },
+
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+
+  whyCard: {
+    width: "48%",
+    backgroundColor: "#023B40",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+
+  whyTitle: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  offerCard: {
+    backgroundColor: "#023B40",
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 15,
+  },
+
+  offerCardText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+});
