@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -17,52 +16,60 @@ import Animated, {
   FadeInDown,
 } from "react-native-reanimated";
 import BackButton from "./components/Backbutton";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import { AccessTokenKey, BackendUrl, RefreshTokenKey } from "./utils/Dotenv";
-import * as SecureStore from "expo-secure-store"
-import { useDispatch } from "react-redux";
-import { login } from "@/Redux/slice/user.slice";
+import { BackendUrl } from "./utils/Dotenv";
 
 export default function SignInScreen() {
-  const [identifier, setIdentifier] =
+  const {phone}=useLocalSearchParams()
+  const [phoneNumber, setphoneNumber] =
     useState("");
-    const dispatch=useDispatch();
 
-  const [password, setPassword] =
+  const [otp, setotp] =
+    useState("");
+  const [confirmotp, setconfirmotp] =
     useState("");
 
   const [loading, setLoading] =
     useState(false);
 
   const validate = () => {
-    if (!identifier.trim()) {
+    if (!phoneNumber.trim()) {
       Alert.alert(
         "Validation Error",
-        "Please enter email or phone number"
+        "Please enter  phone number"
       );
       return false;
     }
 
-    if (!password.trim()) {
+    if (!otp.trim()) {
       Alert.alert(
         "Validation Error",
-        "Please enter password"
+        "Please enter otp"
       );
       return false;
     }
 
-    if (password.length < 6) {
+    if (otp.length < 6) {
       Alert.alert(
         "Validation Error",
-        "Password must be at least 6 characters"
+        "Invalid otp"
       );
       return false;
+    }
+    if(otp!==confirmotp){
+      Alert.alert(
+        "Validation Error",
+        "Otp is not matching"
+      )
     }
 
     return true;
   };
 
+  useEffect(()=>{
+    setphoneNumber(String(phone))
+  })
   const handleLogin = async () => {
     if (!validate()) return;
 
@@ -73,32 +80,32 @@ export default function SignInScreen() {
       ============================
       API CALL PLACEHOLDER
       ============================
-
       */
+
       const {data} = await axios.post(
-        BackendUrl+"/user/signin-for-app",
+        BackendUrl+"/user/verify-otp-after-signup",
         {
-          identifier,
-          password,
+          phoneNumber,
+          otp,
         }
       );
 if(data.success){
-  Alert.alert(data?.msg)
-  await SecureStore.setItemAsync(AccessTokenKey,data?.accessToken)
-  await SecureStore.setItemAsync(RefreshTokenKey,data?.refreshToken)
-  dispatch(login(true))
-  router.replace("/(tabs)/Home")
-
+  Alert.alert("successfully verified")
+  router.replace("/Signin")
 }
 else{
   Alert.alert(data?.msg)
 }
 
+
       
+      
+
+
 
       
     } catch (error: any) {
-      const {data,status}=error.response;
+      let {data,status}=error.response;
       Alert.alert(
         "Error",
         data?.msg ||
@@ -133,28 +140,28 @@ else{
           style={styles.card}
         >
           <Text style={styles.logo}>
-            MyDhobi
+            Verify
           </Text>
 
-          <Text style={styles.title}>
+          {/* <Text style={styles.title}>
             Welcome Back 👋
-          </Text>
+          </Text> */}
 
-          <Text style={styles.subtitle}>
+          {/* <Text style={styles.subtitle}>
             Login to continue
-          </Text>
+          </Text> */}
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>
-              Email or Phone
+               Phone
             </Text>
 
             <TextInput
               placeholder="Enter email or phone"
               placeholderTextColor="#8FA4A7"
-              value={identifier}
+              value={phoneNumber}
               onChangeText={
-                setIdentifier
+                setphoneNumber
               }
               autoCapitalize="none"
               style={styles.input}
@@ -163,16 +170,35 @@ else{
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>
-              Password
+              otp
             </Text>
 
             <TextInput
-              placeholder="Enter password"
+              placeholder="Enter otp"
               placeholderTextColor="#8FA4A7"
               secureTextEntry
-              value={password}
+              keyboardType="phone-pad"
+              value={otp}
               onChangeText={
-                setPassword
+                setotp
+              }
+              style={styles.input}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>
+               Confirm otp
+            </Text>
+
+            <TextInput
+              placeholder="Confirm otp"
+              placeholderTextColor="#8FA4A7"
+              secureTextEntry
+              value={confirmotp}
+              keyboardType="phone-pad"
+
+              onChangeText={
+                setconfirmotp
               }
               style={styles.input}
             />
@@ -198,35 +224,12 @@ else{
                   styles.buttonText
                 }
               >
-                Sign In
+                Verify
               </Text>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.footer}
-            onPress={() => {
-              /*
-               router.push("/signup")
-              */
-            }}
-          >
-            <Text
-              style={styles.footerText}
-            >
-              Don't have an account?{" "}
-              <Text
-              onPress={()=>{
-                router.push("/Signup")
-              }}
-                style={
-                  styles.signupText
-                }
-              >
-                Sign Up
-              </Text>
-            </Text>
-          </TouchableOpacity>
+          
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>

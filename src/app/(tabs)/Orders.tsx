@@ -1,18 +1,22 @@
 import { Link } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
-} from "react-native";
+  Alert,
 
+} from "react-native";
+import {SafeAreaView} from "react-native-safe-area-context"
 import Animated, {
   FadeInDown,
   Layout,
 } from "react-native-reanimated";
+import api from "../utils/api";
+import { OrderProductType, setOrders } from "@/Redux/slice/user.slice";
+import { useSelector } from "react-redux";
 
 interface OrderItem {
   name: string;
@@ -37,106 +41,110 @@ interface Order {
   items: OrderItem[];
 }
 
-const orders: Order[] = [
-  {
-    _id: "1",
-    orderId: "ORD123456",
-    day: "Today",
-    time: "09 AM - 11 AM",
-    phone: "9876543210",
-    altPhone: "9123456789",
-    address:
-      "Sector 15, Kalamboli, Navi Mumbai",
+// const orders: Order[] = [
+//   {
+//     _id: "1",
+//     orderId: "ORD123456",
+//     day: "Today",
+//     time: "09 AM - 11 AM",
+//     phone: "9876543210",
+//     altPhone: "9123456789",
+//     address:
+//       "Sector 15, Kalamboli, Navi Mumbai",
 
-    status: "Pending",
+//     status: "Pending",
 
-    items: [
-      {
-        name: "Shirt",
-        quantity: 2,
-        price: 40,
-      },
-      {
-        name: "Jeans",
-        quantity: 1,
-        price: 35,
-      },
-      {
-        name: "T-Shirt",
-        quantity: 3,
-        price: 60,
-      },
-    ],
-  },
+//     items: [
+//       {
+//         name: "Shirt",
+//         quantity: 2,
+//         price: 40,
+//       },
+//       {
+//         name: "Jeans",
+//         quantity: 1,
+//         price: 35,
+//       },
+//       {
+//         name: "T-Shirt",
+//         quantity: 3,
+//         price: 60,
+//       },
+//     ],
+//   },
 
-  {
-    _id: "2",
-    orderId: "ORD123457",
-    day: "Tomorrow",
-    time: "04 PM - 06 PM",
-    phone: "9988776655",
-    altPhone: "8877665544",
-    address:
-      "Roadpali, Navi Mumbai",
+//   {
+//     _id: "2",
+//     orderId: "ORD123457",
+//     day: "Tomorrow",
+//     time: "04 PM - 06 PM",
+//     phone: "9988776655",
+//     altPhone: "8877665544",
+//     address:
+//       "Roadpali, Navi Mumbai",
 
-    status: "Processing",
+//     status: "Processing",
 
-    items: [
-      {
-        name: "Saree",
-        quantity: 2,
-        price: 120,
-      },
-      {
-        name: "Blazer",
-        quantity: 1,
-        price: 100,
-      },
-    ],
-  },
+//     items: [
+//       {
+//         name: "Saree",
+//         quantity: 2,
+//         price: 120,
+//       },
+//       {
+//         name: "Blazer",
+//         quantity: 1,
+//         price: 100,
+//       },
+//     ],
+//   },
 
-  {
-    _id: "3",
-    orderId: "ORD123458",
-    day: "15 Jun 2026",
-    time: "11 AM - 01 PM",
-    phone: "9876543211",
-    altPhone: "9876543212",
-    address:
-      "Panvel, Navi Mumbai",
+//   {
+//     _id: "3",
+//     orderId: "ORD123458",
+//     day: "15 Jun 2026",
+//     time: "11 AM - 01 PM",
+//     phone: "9876543211",
+//     altPhone: "9876543212",
+//     address:
+//       "Panvel, Navi Mumbai",
 
-    status: "Delivered",
+//     status: "Delivered",
 
-    items: [
-      {
-        name: "Shirt",
-        quantity: 4,
-        price: 80,
-      },
-      {
-        name: "Jeans",
-        quantity: 2,
-        price: 70,
-      },
-    ],
-  },
-];
+//     items: [
+//       {
+//         name: "Shirt",
+//         quantity: 4,
+//         price: 80,
+//       },
+//       {
+//         name: "Jeans",
+//         quantity: 2,
+//         price: 70,
+//       },
+//     ],
+//   },
+// ];
 
 export default function OrdersScreen() {
   const [expandedOrder, setExpandedOrder] =
     useState<string | null>(null);
+  const LogedInUser=useSelector((state:any)=>state.User.user)
 
+let [orders,setorders]=useState<OrderProductType[]>(
+  []
+)
   const getStatusColor = (
     status: string
   ) => {
     switch (status) {
-      case "Pending":
+      case "PLACED":
         return "#F59E0B";
 
-      case "Processing":
+      case "OUT_FOR_DELIVERY":
         return "#3B82F6";
 
-      case "Picked Up":
+      case "DELIVERED":
         return "#8B5CF6";
 
       case "Delivered":
@@ -150,8 +158,39 @@ export default function OrdersScreen() {
     }
   };
 
-  return (
-    <SafeAreaView
+  async function GetAllOrders(){
+    try {
+      let {data}=await api.get("/order/get-order-by-id-for-app");
+      if(data.success){
+        console.log(data)
+        setorders(data?.msg)
+      }
+      else{
+        Alert.alert(data?.msg)
+      }
+    } catch (error:any) {
+      let {data,status}=error.response;
+          console.log("error in getallorders")
+            console.log(status)
+            console.log(data)
+    }
+  }
+
+  useEffect(()=>{
+GetAllOrders();
+  },[])
+
+  const Main=()=>{
+    if(LogedInUser?.role=="DeliveryBoy"){
+      return(
+
+        <OrdersScreen/>
+      )
+    }
+    else{
+      return(
+
+<SafeAreaView
       style={styles.container}
     >
       <Text style={styles.heading}>
@@ -161,7 +200,7 @@ export default function OrdersScreen() {
       <FlatList
         data={orders}
         keyExtractor={(item) =>
-          item._id
+          String(item._id)
         }
         contentContainerStyle={{
           paddingBottom: 120,
@@ -174,21 +213,19 @@ export default function OrdersScreen() {
           index,
         }) => {
           const total =
-            item.items.reduce(
+            item.Items.reduce(
               (
                 acc,
                 current
               ) =>
                 acc +
-                current.price,
+                Number(current.price),
               0
             );
 
           const canUpdate =
-            item.status ===
-              "Pending" ||
-            item.status ===
-              "Processing";
+            item.orderStatus ===
+              "PLACED" 
 
           return (
             <Animated.View
@@ -213,7 +250,7 @@ export default function OrdersScreen() {
                   }
                 >
                   {
-                    item.orderId
+                    item._id
                   }
                 </Text>
 
@@ -223,7 +260,7 @@ export default function OrdersScreen() {
                     {
                       backgroundColor:
                         getStatusColor(
-                          item.status
+                          String(item.orderStatus)
                         ),
                     },
                   ]}
@@ -234,7 +271,7 @@ export default function OrdersScreen() {
                     }
                   >
                     {
-                      item.status
+                      String(item.orderStatus)
                     }
                   </Text>
                 </View>
@@ -244,32 +281,32 @@ export default function OrdersScreen() {
 
               <InfoRow
                 label="Pickup Day"
-                value={item.day}
+                value={String(item.Day)}
               />
 
               <InfoRow
                 label="Pickup Time"
-                value={item.time}
+                value={`${item.Time.from}-${item.Time.to}`}
               />
 
               <InfoRow
                 label="Phone"
                 value={
-                  item.phone
+                  String(item.phoneNumber)
                 }
               />
 
               <InfoRow
                 label="Alt Phone"
                 value={
-                  item.altPhone
+                  String(item.AltphoneNumber)
                 }
               />
 
               <InfoRow
                 label="Address"
                 value={
-                  item.address
+                  String(item.Address)
                 }
               />
 
@@ -282,9 +319,9 @@ export default function OrdersScreen() {
                 onPress={() =>
                   setExpandedOrder(
                     expandedOrder ===
-                      item._id
+                      String(item._id)
                       ? null
-                      : item._id
+                      : String(item._id)
                   )
                 }
               >
@@ -318,7 +355,7 @@ export default function OrdersScreen() {
                     Ordered Items
                   </Text>
 
-                  {item.items.map(
+                  {item.Items.map(
                     (
                       product,
                       idx
@@ -335,11 +372,11 @@ export default function OrdersScreen() {
                           }
                         >
                           {
-                            product.name
+                            String(product.name)
                           }{" "}
                           ×{" "}
                           {
-                            product.quantity
+                            String(product.count)
                           }
                         </Text>
 
@@ -350,7 +387,7 @@ export default function OrdersScreen() {
                         >
                           ₹
                           {
-                            product.price
+                            String(product.price)
                           }
                         </Text>
                       </View>
@@ -410,6 +447,13 @@ export default function OrdersScreen() {
         }}
       />
     </SafeAreaView>
+      )
+
+    }
+  }
+
+  return (
+    <Main/>
   );
 }
 

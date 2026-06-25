@@ -12,10 +12,12 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import axios from "axios"
 
 import Animated, {
   FadeInDown,
 } from "react-native-reanimated";
+import { BackendUrl } from "./utils/Dotenv";
 
 export default function SignUpScreen() {
   const [username, setUsername] =
@@ -91,20 +93,28 @@ export default function SignUpScreen() {
       API PLACEHOLDER
       ============================
 
-      const response =
+      */
+      const {data} =
         await axios.post(
-          "/auth/signup",
+          BackendUrl+"/user/signup",
           {
             username,
             email,
-            contactNumber,
-            address,
+            phoneNumber:contactNumber,
+            Address:address,
             password,
           }
         );
+        if(data?.success){
+          router.replace({pathname:"/Verification",params:{phone:contactNumber}});
+          Alert.alert("An otp is send to your phone")
+        }
+        else{
+          Alert.alert(data?.msg)
+        }
+          
 
-      router.replace("/login");
-      */
+          
 
       await new Promise((resolve) =>
         setTimeout(resolve, 2000)
@@ -115,11 +125,13 @@ export default function SignUpScreen() {
         "Account Created Successfully"
       );
     } catch (error: any) {
+      let {data,status}=error.response;
       Alert.alert(
         "Error",
-        error?.message ||
+        data?.msg ||
           "Something went wrong"
       );
+      console.log(status)
     } finally {
       setLoading(false);
     }
@@ -150,14 +162,14 @@ export default function SignUpScreen() {
             MyDhobi
           </Text>
 
-          <Text style={styles.title}>
+          {/* <Text style={styles.title}>
             Create Account 🚀
-          </Text>
+          </Text> */}
 
-          <Text style={styles.subtitle}>
+          {/* <Text style={styles.subtitle}>
             Join us and enjoy hassle-free
             laundry services
-          </Text>
+          </Text> */}
 
           {/* Username */}
 

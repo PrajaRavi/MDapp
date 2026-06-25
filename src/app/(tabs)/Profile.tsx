@@ -18,6 +18,8 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import { BackendUrl } from "../utils/Dotenv";
 
 export default function ProfileScreen() {
   const user = {
@@ -31,8 +33,10 @@ export default function ProfileScreen() {
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43",
   };
 
+  const LogedInUser=useSelector((state:any)=>state.User.user)
   const [profilePhoto, setProfilePhoto] =
-    useState(user.profilePhoto);
+    useState(`${BackendUrl}/Images/Profile/${LogedInUser?.profilePicture}`);
+
 
   const [uploadingImage, setUploadingImage] =
     useState(false);
@@ -279,13 +283,13 @@ export default function ProfileScreen() {
           <Text
             style={styles.name}
           >
-            {user.name}
+            {LogedInUser.username}
           </Text>
 
           <Text
             style={styles.email}
           >
-            {user.email}
+            {LogedInUser.email}
           </Text>
         </View>
 
@@ -295,14 +299,14 @@ export default function ProfileScreen() {
           <DetailRow
             label="Phone Number"
             value={
-              user.phoneNumber
+              LogedInUser.phoneNumber
             }
           />
 
           <DetailRow
             label="Address"
             value={
-              user.address
+              LogedInUser.address
             }
           />
         </View>

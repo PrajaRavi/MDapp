@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,16 @@ import Animated, {
   FadeInUp,
   ZoomIn,
 } from "react-native-reanimated";
-import ServiceItemsModal from "../components/services";
+import ServiceItemsModal, { ServiceItem } from "../components/services";
 import SignInCard from "../components/Signincard";
 import Popup from "../utils/Popup";
 import SignInScreen from "../Signin";
 import { router } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import * as SecureStore from "expo-secure-store"
+import { AccessTokenKey, BackendUrl } from "../utils/Dotenv";
+import api from "../utils/api";
+import { login, setUser } from "@/Redux/slice/user.slice";
 
 const { width } = Dimensions.get("window");
 
@@ -29,7 +34,6 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
-const isLoggedIn = false;
 const IronIcon=Image.resolveAssetSource(require("@/assets/images/iron.png"))
 const cleancloth=Image.resolveAssetSource(require("@/assets/images/clean-clothes.png"))
 const BagICon=Image.resolveAssetSource(require("@/assets/images/school-bag.png"))
@@ -56,17 +60,27 @@ const services = [
       {
         id: "tshirt",
         label: "T-Shirt",
-        price: 12,
+        price: 10,
       },
       {
         id: "jeans",
         label: "Jeans",
-        price: 25,
+        price: 10,
       },
       {
         id: "saree",
-        label: "Saree",
-        price: 60,
+        label: "Saree(Regular)",
+        price: 30,
+      },
+      {
+        id: "sareeE",
+        label: "Saree(etc)",
+        price: 120,
+      },
+      {
+        id: "Dress",
+        label: "Dress material",
+        price: 20,
       },
     ]
   },
@@ -76,11 +90,11 @@ const services = [
     image:
     IronIcon.uri
       ,
-      items: [
-      {
-        id: "shirt",
-        label: "Shirt",
-        price: 15,
+  items: [
+    {
+      id: "shirt",
+      label: "Shirt",
+      price: 15,
       },
       {
         id: "tshirt",
@@ -88,15 +102,30 @@ const services = [
         price: 12,
       },
       {
-        id: "jeans",
-        label: "Jeans",
-        price: 25,
+        id: "Trouser",
+        label: "Trouser",
+        price: 15,
       },
       {
-        id: "saree",
-        label: "Saree",
-        price: 60,
+        id: "schl",
+        label: "Scl.Uniform",
+        price: 30,
       },
+      {
+        id: "kurti",
+        label: "kurti",
+        price: 15,
+      },
+      {
+        id: "plazzo",
+        label: "plazzo",
+        price: 15,
+      },
+      { id: 34, label: "saree", price: 40 },
+      { id: 35, label: "saree(Etc)", price: 130 },
+      { id: 36, label: "Dress material", price: 25 },
+
+      
     ]
   },
   {
@@ -105,26 +134,9 @@ const services = [
     image:
       cleancloth.uri,
       items: [
-      {
-        id: "shirt",
-        label: "Shirt",
-        price: 15,
-      },
-      {
-        id: "tshirt",
-        label: "T-Shirt",
-        price: 12,
-      },
-      {
-        id: "jeans",
-        label: "Jeans",
-        price: 25,
-      },
-      {
-        id: "saree",
-        label: "Saree",
-        price: 60,
-      },
+     { id: 1, label: "Curtain", price: 25 },
+  { id: 2, label: "Bed sheet", price: 20 },
+  { id: 3, label: "Pillow covers", price: 12 } 
     ]
   },
   {
@@ -133,26 +145,9 @@ const services = [
     image:
       BagICon.uri,
       items: [
-      {
-        id: "shirt",
-        label: "Shirt",
-        price: 15,
-      },
-      {
-        id: "tshirt",
-        label: "T-Shirt",
-        price: 12,
-      },
-      {
-        id: "jeans",
-        label: "Jeans",
-        price: 25,
-      },
-      {
-        id: "saree",
-        label: "Saree",
-        price: 60,
-      },
+      { id: 1, label: "Sch. Bag/Office Bag", price: 80 },
+  { id: 2, label: "Travel Bag", price: 100 },
+ 
     ]
   },
   {
@@ -161,26 +156,10 @@ const services = [
     image:
       ShoeCon.uri,
       items: [
-      {
-        id: "shirt",
-        label: "Shirt",
-        price: 15,
-      },
-      {
-        id: "tshirt",
-        label: "T-Shirt",
-        price: 12,
-      },
-      {
-        id: "jeans",
-        label: "Jeans",
-        price: 25,
-      },
-      {
-        id: "saree",
-        label: "Saree",
-        price: 60,
-      },
+      { id: 1, label: "Sports shoes", price: 80 },
+  { id: 2, label: "Sneakers", price: 80 },
+  { id: 3, label: "Casual shoes", price: 60 },
+  
     ]
   },
 ];
@@ -195,15 +174,13 @@ const whyChooseUs = [
 ];
 
 export default function HomeScreen() {
-  let [selectedService, setSelectedService] =
-  useState<any>(null);
   let [OpenPopUpModel, setOpenPopUpModel] =
   useState<boolean>(false);
+  const isLoggedIn =useSelector((state:any)=>state.User.isLoggedIn)
+  const dispatch=useDispatch();
+  const LogedInUser=useSelector((state:any)=>state.User.user)
 
-const [modalVisible, setModalVisible] =
-  useState(false);
   const handleServiceClick = (service:any) => {
-    setSelectedService(service)
     if (!isLoggedIn) {
       Alert.alert(
         "Login Required",
@@ -212,8 +189,37 @@ const [modalVisible, setModalVisible] =
       
       return;
     }
-    setModalVisible(true)
+    router.push({pathname:"/ServicesDetail",params:{service:JSON.stringify(service)}})
   };
+
+  
+  async function GetLogedInUser(){
+    try {
+      let {data}=await api.get(`/user/loged-in-user-for-app`);
+      if(data.success){
+        console.log(data)
+        console.log("ravi")
+        dispatch(setUser(data?.data))
+        
+      }
+      } catch (error:any) {
+        console.log("error aya hai")
+      let {data,status}=error.response;
+      if(data?.msg){
+        Alert.alert(data?.msg+"getuser failed")
+      }
+
+      console.log(status)
+      console.log(error)
+    }
+  }
+  useEffect(()=>{
+    if(isLoggedIn){
+
+      GetLogedInUser();
+      // CheckIfUserIsLoginOrNot();
+    }
+  },[isLoggedIn])
 
   return (
     <View style={styles.container}>
@@ -231,7 +237,7 @@ const [modalVisible, setModalVisible] =
         >
           <View>
             <Text style={styles.heading}>
-              Hello, Ravi 👋
+              Hello, {LogedInUser?.username||"Unknown"} 👋
             </Text>
 
             <Text style={styles.subHeading}>
@@ -242,7 +248,7 @@ const [modalVisible, setModalVisible] =
           {isLoggedIn && (
             <Image
               source={{
-                uri: "https://i.pravatar.cc/300",
+                uri: `${BackendUrl}/Images/Profile/${LogedInUser?.profilePicture}`,
               }}
               style={styles.avatar}
             />
@@ -285,27 +291,6 @@ const [modalVisible, setModalVisible] =
         </Animated.View>
 
         {/* SERVICES */}
-<ServiceItemsModal
-  visible={modalVisible}
-  serviceName={
-    selectedService?.name || ""
-  }
-  items={
-    selectedService?.items || [{id:1,label:"ravi",price:50}]
-  }
-  onClose={() =>
-    setModalVisible(false)
-  }
-  onContinue={(
-    items,
-    totalPrice
-  ) => {
-    console.log(items);
-    console.log(totalPrice);
-
-    setModalVisible(false);
-  }}
-/>
         <Animated.View
           entering={FadeInUp.delay(200)}
           style={styles.section}
@@ -327,6 +312,7 @@ const [modalVisible, setModalVisible] =
                 activeOpacity={0.9}
                 onPress={
                   ()=>{
+                    
                     handleServiceClick(service)
                   }
                 }
