@@ -126,11 +126,14 @@ export default function SignUpScreen() {
       );
     } catch (error: any) {
       let {data,status}=error.response;
-      Alert.alert(
-        "Error",
+      // Alert.alert(
+      //   "Error",
+      //   data?.msg ||
+      //     "Something went wrong"
+      // );
+      console.log("Error",
         data?.msg ||
-          "Something went wrong"
-      );
+          "Something went wrong")
       console.log(status)
     } finally {
       setLoading(false);

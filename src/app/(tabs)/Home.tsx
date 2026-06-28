@@ -181,14 +181,14 @@ export default function HomeScreen() {
   const LogedInUser=useSelector((state:any)=>state.User.user)
 
   const handleServiceClick = (service:any) => {
-    if (!isLoggedIn) {
-      Alert.alert(
-        "Login Required",
-        "You are not logged in"
-      );
+    // if (!isLoggedIn) {
+    //   Alert.alert(
+    //     "Login Required",
+    //     "You are not logged in"
+    //   );
       
-      return;
-    }
+    //   return;
+    // }
     router.push({pathname:"/ServicesDetail",params:{service:JSON.stringify(service)}})
   };
 

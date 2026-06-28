@@ -14,6 +14,7 @@ import {
 import * as Location from "expo-location";
 
 import { useLocalSearchParams } from "expo-router";
+import { useSelector } from "react-redux";
 
 export default function CheckoutScreen() {
   const { order } = useLocalSearchParams();
@@ -32,6 +33,7 @@ export default function CheckoutScreen() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [currentAddress, setCurrentAddress] = useState("");
+    const isLoggedIn =useSelector((state:any)=>state.User.isLoggedIn)
 
   const [pickupDate, setPickupDate] = useState("Today");
 
@@ -247,10 +249,15 @@ export default function CheckoutScreen() {
           )
       );
 
-      Alert.alert(
-        "Success",
-        "Order placed successfully"
-      );
+      if(isLoggedIn){
+
+        Alert.alert(
+          "Success",
+          "Order placed successfully"
+        );
+      }else{
+        Alert.alert("you are not logedin")
+      }
     } catch (error) {
       Alert.alert(
         "Error",

@@ -32,7 +32,7 @@ type ProductPickUpType={
   to:String;
 }
 type ItemType={
-  id:string;
+  id?:string;
   name:string;
   price:Number;
   count:Number;

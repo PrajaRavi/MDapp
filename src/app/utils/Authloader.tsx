@@ -47,6 +47,12 @@ export default function AuthLoader() {
         }}
         />
     <Stack.Screen
+        name="Offline"
+        options={{
+          headerShown: false,
+        }}
+        />
+    <Stack.Screen
         name="Verification"
         options={{
           headerShown: false,

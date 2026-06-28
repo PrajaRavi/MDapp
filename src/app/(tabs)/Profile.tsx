@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -18,9 +18,11 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
-import { BackendUrl } from "../utils/Dotenv";
-
+import { useDispatch, useSelector } from "react-redux";
+import { AccessTokenKey, BackendUrl, RefreshTokenKey } from "../utils/Dotenv";
+import * as SecureStore from "expo-secure-store"
+import { login } from "@/Redux/slice/user.slice";
+import { router } from "expo-router";
 export default function ProfileScreen() {
   const user = {
     name: "Ravi Kumar",
@@ -34,6 +36,9 @@ export default function ProfileScreen() {
   };
 
   const LogedInUser=useSelector((state:any)=>state.User.user)
+    const isLoggedIn =useSelector((state:any)=>state.User.isLoggedIn)
+    const dispatch=useDispatch();
+  
   const [profilePhoto, setProfilePhoto] =
     useState(`${BackendUrl}/Images/Profile/${LogedInUser?.profilePicture}`);
 
@@ -202,6 +207,10 @@ export default function ProfileScreen() {
 
         router.replace("/");
         */
+await SecureStore.deleteItemAsync(AccessTokenKey)
+  await SecureStore.deleteItemAsync(RefreshTokenKey)
+  dispatch(login(true))
+  router.replace("/Signin")
 
         Alert.alert(
           "Logout",
@@ -216,7 +225,8 @@ export default function ProfileScreen() {
     };
 
   return (
-    <ScrollView
+    <>
+    {isLoggedIn?<ScrollView
       style={styles.container}
       contentContainerStyle={{
         paddingBottom: 120,
@@ -283,13 +293,13 @@ export default function ProfileScreen() {
           <Text
             style={styles.name}
           >
-            {LogedInUser.username}
+            {LogedInUser?.username}
           </Text>
 
           <Text
             style={styles.email}
           >
-            {LogedInUser.email}
+            {LogedInUser?.email}
           </Text>
         </View>
 
@@ -299,14 +309,14 @@ export default function ProfileScreen() {
           <DetailRow
             label="Phone Number"
             value={
-              LogedInUser.phoneNumber
+              LogedInUser?.phoneNumber
             }
           />
 
           <DetailRow
             label="Address"
             value={
-              LogedInUser.address
+              LogedInUser?.address
             }
           />
         </View>
@@ -352,7 +362,13 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
       </Animated.View>
-    </ScrollView>
+    </ScrollView>:
+    <View style={styles.container}>
+      <Text style={{fontSize:20,color:"white"}}>You are not logedIn</Text>
+    </View>
+    }
+    </>
+
   );
 }
 
