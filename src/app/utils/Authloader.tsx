@@ -28,12 +28,12 @@ export default function AuthLoader() {
 
   return <Stack>
 
-    {/* <Stack.Screen
+    <Stack.Screen
         name="index"
         options={{
           headerShown: false,
           }}
-          /> */}
+          />
     <Stack.Screen
         name="(tabs)"
         options={{

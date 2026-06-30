@@ -15,11 +15,14 @@ export default function RootLayout() {
   //    return <AuthLoader/> 
   //   }
 async function RefreshToken(){
-  try {
-    let {data}=await apiForRefreshToken.post(`/user/refresh-token-for-app`)
-// useNetworkListener()
-    if(data?.success){
-      console.log(data)
+  let token=await SecureStore.getItemAsync(AccessTokenKey)
+  if(token){
+
+    try {
+      let {data}=await apiForRefreshToken.post(`/user/refresh-token-for-app`)
+      // useNetworkListener()
+      if(data?.success){
+        console.log(data)
       await SecureStore.setItemAsync(AccessTokenKey,data?.token)
       await SecureStore.setItemAsync(RefreshTokenKey,data?.refresh)
     }
@@ -34,6 +37,7 @@ async function RefreshToken(){
           console.log(status)
           console.log(error)
   }
+}
 }
 
   useEffect(()=>{
