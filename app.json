@@ -38,7 +38,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#fff",
+          "backgroundColor": "#021F24",
           "android": {
             "image": "./assets/images/mdlogo.png",
             "resizeMode":"contain",

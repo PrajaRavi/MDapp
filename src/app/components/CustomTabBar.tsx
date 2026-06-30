@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useTransition } from "react";
 import {
   View,
   TouchableOpacity,
@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useTranslation } from "react-i18next";
 
 const PRIMARY = "#01BCBC";
 const DARK = "#023B40";
@@ -77,6 +78,8 @@ function TabItem({
   focused,
   onPress,
 }: TabItemProps) {
+  const {t}=useTranslation();
+
   const animatedStyle =
     useAnimatedStyle(() => ({
       transform: [
@@ -126,7 +129,7 @@ function TabItem({
             }}
             
             >
-          {label}
+          {label=="Profile"?t("my_profile"):t(String(label).toLowerCase())}
         </Text>
             </View>
       </Animated.View>

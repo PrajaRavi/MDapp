@@ -8,6 +8,7 @@ import apiForRefreshToken from "./utils/apiForRefreshToken";
 import * as SecureStore from "expo-secure-store"
 import { AccessTokenKey, RefreshTokenKey } from "./utils/Dotenv";
 import AuthLoader from "./utils/Authloader";
+import "../i18n"
 import useNetworkListener from "./utils/Network";
 export default function RootLayout() {
   // function AppNavigator() {

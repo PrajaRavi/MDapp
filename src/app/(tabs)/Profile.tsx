@@ -23,6 +23,8 @@ import { AccessTokenKey, BackendUrl, RefreshTokenKey } from "../utils/Dotenv";
 import * as SecureStore from "expo-secure-store"
 import { login } from "@/Redux/slice/user.slice";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 export default function ProfileScreen() {
   const user = {
     name: "Ravi Kumar",
@@ -38,6 +40,7 @@ export default function ProfileScreen() {
   const LogedInUser=useSelector((state:any)=>state.User.user)
     const isLoggedIn =useSelector((state:any)=>state.User.isLoggedIn)
     const dispatch=useDispatch();
+    const {t}=useTranslation();
   
   const [profilePhoto, setProfilePhoto] =
     useState(`${BackendUrl}/Images/Profile/${LogedInUser?.profilePicture}`);
@@ -226,7 +229,8 @@ await SecureStore.deleteItemAsync(AccessTokenKey)
 
   return (
     <>
-    {isLoggedIn?<ScrollView
+    {isLoggedIn?
+    <ScrollView
       style={styles.container}
       contentContainerStyle={{
         paddingBottom: 120,
@@ -241,7 +245,7 @@ await SecureStore.deleteItemAsync(AccessTokenKey)
         )}
       >
         <Text style={styles.title}>
-          Profile
+          {t("my_profile")}
         </Text>
 
         <View
@@ -340,9 +344,24 @@ await SecureStore.deleteItemAsync(AccessTokenKey)
                 styles.updateButtonText
               }
             >
-              Update Profile
+              {t("update_profile")}
             </Text>
           )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.updateButton}>
+           
+            <Text
+              style={
+                styles.updateButtonText
+              }
+              onPress={()=>{
+                router.push("/Language")
+              }}
+            >
+              {t("language")}
+            </Text>
+          
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -358,14 +377,26 @@ await SecureStore.deleteItemAsync(AccessTokenKey)
               styles.logoutButtonText
             }
           >
-            Logout
+            {t("logout")}
           </Text>
         </TouchableOpacity>
       </Animated.View>
-    </ScrollView>:
+    </ScrollView>
+    :
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{
+        paddingBottom: 120,
+      }}
+      showsVerticalScrollIndicator={
+        false
+      }
+    >
     <View style={styles.container}>
       <Text style={{fontSize:20,color:"white"}}>You are not logedIn</Text>
     </View>
+    </ScrollView>
+
     }
     </>
 
@@ -411,6 +442,7 @@ const styles =
       color: "#FFFFFF",
       fontSize: 32,
       fontWeight: "700",
+      position:"relative",
       marginTop: 20,
       marginBottom: 20,
     },

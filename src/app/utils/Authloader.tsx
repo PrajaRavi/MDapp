@@ -35,6 +35,12 @@ export default function AuthLoader() {
           }}
           />
     <Stack.Screen
+        name="Language"
+        options={{
+          headerShown: false,
+          }}
+          />
+    <Stack.Screen
         name="(tabs)"
         options={{
           headerShown: false,

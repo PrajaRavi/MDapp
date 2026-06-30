@@ -23,8 +23,10 @@ import { router } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import * as SecureStore from "expo-secure-store"
 import { AccessTokenKey, BackendUrl } from "../utils/Dotenv";
+
 import api from "../utils/api";
 import { login, setUser } from "@/Redux/slice/user.slice";
+import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
 
@@ -45,124 +47,6 @@ const guarentty=Image.resolveAssetSource(require("@/assets/images/guarantee.png"
 const payment=Image.resolveAssetSource(require("@/assets/images/payment-gateway.png"))
 
 
-const services = [
-  {
-    id: 1,
-    name: "Wash & Fold",
-    image:
-      cleancloth.uri,
-       items: [
-      {
-        id: "shirt",
-        label: "Shirt",
-        price: 15,
-      },
-      {
-        id: "tshirt",
-        label: "T-Shirt",
-        price: 10,
-      },
-      {
-        id: "jeans",
-        label: "Jeans",
-        price: 10,
-      },
-      {
-        id: "saree",
-        label: "Saree(Regular)",
-        price: 30,
-      },
-      {
-        id: "sareeE",
-        label: "Saree(etc)",
-        price: 120,
-      },
-      {
-        id: "Dress",
-        label: "Dress material",
-        price: 20,
-      },
-    ]
-  },
-  {
-    id: 2,
-    name: "Wash & Iron",
-    image:
-    IronIcon.uri
-      ,
-  items: [
-    {
-      id: "shirt",
-      label: "Shirt",
-      price: 15,
-      },
-      {
-        id: "tshirt",
-        label: "T-Shirt",
-        price: 12,
-      },
-      {
-        id: "Trouser",
-        label: "Trouser",
-        price: 15,
-      },
-      {
-        id: "schl",
-        label: "Scl.Uniform",
-        price: 30,
-      },
-      {
-        id: "kurti",
-        label: "kurti",
-        price: 15,
-      },
-      {
-        id: "plazzo",
-        label: "plazzo",
-        price: 15,
-      },
-      { id: 34, label: "saree", price: 40 },
-      { id: 35, label: "saree(Etc)", price: 130 },
-      { id: 36, label: "Dress material", price: 25 },
-
-      
-    ]
-  },
-  {
-    id: 3,
-    name: "Heavy Wash Service",
-    image:
-      cleancloth.uri,
-      items: [
-     { id: 1, label: "Curtain", price: 25 },
-  { id: 2, label: "Bed sheet", price: 20 },
-  { id: 3, label: "Pillow covers", price: 12 } 
-    ]
-  },
-  {
-    id: 4,
-    name: "Bag cleaning ",
-    image:
-      BagICon.uri,
-      items: [
-      { id: 1, label: "Sch. Bag/Office Bag", price: 80 },
-  { id: 2, label: "Travel Bag", price: 100 },
- 
-    ]
-  },
-  {
-    id: 5,
-    name: "shoe cleaning ",
-    image:
-      ShoeCon.uri,
-      items: [
-      { id: 1, label: "Sports shoes", price: 80 },
-  { id: 2, label: "Sneakers", price: 80 },
-  { id: 3, label: "Casual shoes", price: 60 },
-  
-    ]
-  },
-];
 
 const whyChooseUs = [
   {label:"Free Pickup",Icon:delivery.uri,id:1},
@@ -179,6 +63,125 @@ export default function HomeScreen() {
   const isLoggedIn =useSelector((state:any)=>state.User.isLoggedIn)
   const dispatch=useDispatch();
   const LogedInUser=useSelector((state:any)=>state.User.user)
+  const {t}=useTranslation();
+  const services = [
+    {
+      id: 1,
+      name: t("wash_fold"),
+      image:
+        cleancloth.uri,
+         items: [
+        {
+          id: "shirt",
+          label: t("shirt"),
+          price: 15,
+        },
+        {
+          id: "tshirt",
+          label: t("tshirt"),
+          price: 10,
+        },
+        {
+          id: "jeans",
+          label: t("jeans"),
+          price: 10,
+        },
+        {
+          id: "saree",
+          label: t("saree_regular"),
+          price: 30,
+        },
+        {
+          id: "sareeE",
+          label: t("saree_etc"),
+          price: 120,
+        },
+        {
+          id: "Dress",
+          label: t("dress_material"),
+          price: 20,
+        },
+      ]
+    },
+    {
+      id: 2,
+      name: t("wash_iron"),
+      image:
+      IronIcon.uri
+        ,
+    items: [
+      {
+        id: t("shirt"),
+        label: t("shirt"),
+        price: 15,
+        },
+        {
+          id: "tshirt",
+          label: t("tshirt"),
+          price: 12,
+        },
+        {
+          id: "Trouser",
+          label: t("trouser"),
+          price: 15,
+        },
+        {
+          id: "schl",
+          label: t("school_uniform"),
+          price: 30,
+        },
+        {
+          id: "kurti",
+          label: t("kurti"),
+          price: 15,
+        },
+        {
+          id: "plazzo",
+          label: t("plazzo"),
+          price: 15,
+        },
+        { id: 34, label: t("saree"), price: 40 },
+        { id: 35, label: t("saree_etc"), price: 130 },
+        { id: 36, label: t("dress_material"), price: 25 },
+  
+        
+      ]
+    },
+    {
+      id: 3,
+      name: t("heavy_wash"),
+      image:
+        cleancloth.uri,
+        items: [
+       { id: 1, label: t("curtain"), price: 25 },
+    { id: 2, label: t("bed_sheet"), price: 20 },
+    { id: 3, label: t("pillow_cover"), price: 12 } 
+      ]
+    },
+    {
+      id: 4,
+      name: t("bag_cleaning"),
+      image:
+        BagICon.uri,
+        items: [
+        { id: 1, label: "Sch. Bag/Office Bag", price: 80 },
+    { id: 2, label: "Travel Bag", price: 100 },
+   
+      ]
+    },
+    {
+      id: 5,
+      name: t("shoe_cleaning"),
+      image:
+        ShoeCon.uri,
+        items: [
+        { id: 1, label: "Sports shoes", price: 80 },
+    { id: 2, label: "Sneakers", price: 80 },
+    { id: 3, label: "Casual shoes", price: 60 },
+    
+      ]
+    },
+  ];
 
   const handleServiceClick = (service:any) => {
     // if (!isLoggedIn) {
@@ -237,11 +240,11 @@ export default function HomeScreen() {
         >
           <View>
             <Text style={styles.heading}>
-              Hello, {LogedInUser?.username||"Unknown"} 👋
+              {t("welcome")}, {LogedInUser?.username||"Unknown"} 👋
             </Text>
 
             <Text style={styles.subHeading}>
-              Fresh clothes, delivered happy.
+            {t("laundry_done_right")}
             </Text>
           </View>
 
@@ -296,7 +299,7 @@ export default function HomeScreen() {
           style={styles.section}
         >
           <Text style={styles.sectionTitle}>
-            Our Services
+            {t("our_services")}
           </Text>
 
           <ScrollView
@@ -345,7 +348,7 @@ export default function HomeScreen() {
           style={styles.section}
         >
           <Text style={styles.sectionTitle}>
-            Why Choose MyDhobi?
+            {t("schedule_pickup")}
           </Text>
 
           <View style={styles.grid}>

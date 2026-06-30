@@ -5,12 +5,15 @@ import en from "./locales/en.json";
 import hi from "./locales/hi.json";
 import mr from "./locales/mr.json";
 
-const savedLanguage =
-  localStorage.getItem("language") || "en";
-
 i18n
   .use(initReactI18next)
   .init({
+    compatibilityJSON: "v4",
+
+    lng: "en",
+
+    fallbackLng: "en",
+
     resources: {
       en: {
         translation: en,
@@ -24,10 +27,6 @@ i18n
         translation: mr,
       },
     },
-
-    lng: savedLanguage,
-
-    fallbackLng: "en",
 
     interpolation: {
       escapeValue: false,
